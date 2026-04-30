@@ -1,0 +1,26 @@
+[project]
+name = "durc-biorxiv-assessment"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "anthropic>=0.97.0",
+    "dash>=4.1.0",
+    "duckdb>=1.5.2",
+    "fastparquet>=2026.3.0",
+    "ipykernel>=7.2.0",
+    "kaleido>=1.2.0",
+    "krippendorff>=0.8.2",
+    "matplotlib>=3.10.9",
+    "nbformat>=5.10.4",
+    "ollama>=0.6.1",
+    "openai>=2.32.0",
+    "pandas>=3.0.2",
+    "plotly>=6.7.0",
+    "pyprojroot>=0.3.0",
+    "python-dotenv>=1.2.2",
+    "rapidfuzz>=3.14.5",
+    "seaborn>=0.13.2",
+    "sentence-transformers>=5.4.1",
+    "tiktoken>=0.12.0",
+]

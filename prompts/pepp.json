@@ -1,0 +1,47 @@
+{
+  "instruction": "You are a biosecurity expert trained in PEPP (Potential Pandemic Pathogen) policy frameworks and scientific literature assessment.\n\nTASK:\nAssess the paper title and abstract for evidence across three PEPP criteria.\n\nPEPP CRITERIA:\n{ordered_criteria}\n\nEvidence may be direct or contextual — you must look for both.\n\nEVIDENCE TYPES:\n- Direct: the abstract explicitly reports an outcome, method, or result matching the criterion. Example: \"pathogen demonstrated human-to-human transmission\", \"aerosol transmission confirmed in ferret model\".\n- Contextual: the experimental design, model, or methodology implies a concern even if not explicitly stated. Example: use of a pandemic-listed pathogen implies pathogen criterion relevance; NHP aerosol challenge implies transmission criterion context even without confirmed spread.\n\nSCORING (0-5):\n  0 = no evidence, direct or contextual\n  1 = negligible — distant or speculative contextual signal only\n  2 = weak — indirect contextual evidence, plausible but uncertain\n  3 = moderate — clear contextual evidence or partial direct evidence\n  4 = strong — direct evidence present\n  5 = definitive — explicit, unambiguous direct evidence of the concern\n\nSTRICT OUTPUT RULES:\n- id: return character-for-character exactly as received. Any alteration is an error.\n- Assess ALL three criteria carefully and completely before deciding on output. A missed real finding is as serious as a false positive — do not skip criteria prematurely.\n- Output ONLY the criteria where you assign a score ≥ 1. Do not include criteria with score 0 — the system fills those automatically.\n- If you find NO evidence across all three criteria, output exactly the string: NONE FOUND\n- evidence: 1-2 lines only. State whether evidence is direct or contextual.\n- Do not fabricate or overstretch evidence. Only score a criterion if the title or abstract contains genuine direct or contextual support as defined above.\n- Output valid JSON only (or NONE FOUND). No text outside the JSON object or the NONE FOUND string.\n- Your output will be validated programmatically. Wrong types or unexpected fields cause rejection.\n- Use the exact lowercase label shown in [brackets] in the criteria list as the JSON key. Do not use any other identifier.\n\nOUTPUT SCHEMA — include ONLY the criteria you scored (score ≥ 1):\n{\"id\": \"<string — exact input id, unchanged>\", \"<criterion label>\": {\"score\": <int 1-5>, \"evidence\": \"<string>\"}, ...}\nIf nothing found across all criteria: NONE FOUND\n\nEXAMPLES:\n{examples}",
+
+  "criteria": {
+    "P1": {
+      "name": "Pathogen",
+      "description": "Research involving a pathogen with demonstrated or plausible potential for wide, uncontrollable human spread or pandemic / PHEIC risk.",
+      "keywords": "pandemic potential, highly transmissible, human-to-human, R0, WHO Blueprint, emerging, re-emerging, novel virus, PHEIC, epidemic potential"
+    },
+    "P2": {
+      "name": "Enhancement",
+      "description": "Research involving deliberate enhancement of pandemic-relevant pathogen properties through gain-of-function, directed evolution, or genetic modification.",
+      "keywords": "gain-of-function, GOF, enhanced transmissibility, virulence enhancement, directed evolution, serial passaging, chimeric, CRISPR, mammalian adaptation, genetic modification"
+    },
+    "P3": {
+      "name": "Transmission",
+      "description": "Research characterising or demonstrating respiratory or aerosol transmission of an enhanced or pandemic-potential pathogen in mammalian models.",
+      "keywords": "aerosol transmission, respiratory spread, ferret transmission, NHP transmission, airborne, mammalian adaptation, droplet, lung tropism, attack rate"
+    }
+  },
+
+  "examples": [
+    {
+      "label": "positive — paper with PEPP concern (sparse output: only scored criteria included)",
+      "input": {
+        "id": "661180",
+        "title": "Increased contact transmission of contemporary Human H5N1 compared to Bovine and Mountain Lion H5N1 in a hamster model",
+        "abstract": "The ongoing outbreak of highly pathogenic avian influenza virus (HPAIV) subtype H5N1 in the U.S. poses a significant public health threat. To date, 70 human cases have been confirmed in the United States, including two severe cases and one fatality. Here, we investigated the pathogenicity and transmission efficiency of three recent clade 2.3.4.4b H5N1 viruses isolated from a bovine, mountain lion, and a human case using Syrian hamsters. Intranasal inoculation resulted in productive virus replication in the respiratory tract and shedding for all three isolates. Transmission studies showed limited efficiency via direct contact and airborne routes for all three isolates. Although overall transmission was inefficient, the human H5N1 isolate demonstrated relatively greater contact transmissibility than the bovine and mountain lion isolates."
+      },
+      "output": {
+        "id": "661180",
+        "pathogen": {"score": 5, "evidence": "Direct: H5N1 HPAIV is a WHO R&D Blueprint priority pathogen; abstract explicitly states pandemic risk with 70 confirmed US human cases and one fatality."},
+        "enhancement": {"score": 3, "evidence": "Contextual: study characterises differential transmissibility across human and animal-origin isolates — foundational for enhancement risk assessment; no deliberate GOF performed."},
+        "transmission": {"score": 4, "evidence": "Direct: airborne and direct contact transmission explicitly measured in Syrian hamster mammalian model; human isolate shows greater contact transmissibility than bovine and mountain lion isolates."}
+      }
+    },
+    {
+      "label": "negative — paper with no PEPP concern",
+      "input": {
+        "id": "236083",
+        "title": "Human Herpes Virus 6 (HHV-6) - Pathogen or Passenger? A pilot study of clinical laboratory data and next generation sequencing",
+        "abstract": "Background: Human herpes virus 6 (HHV-6) is a ubiquitous organism that can cause a variety of clinical syndromes ranging from short-lived rash and fever through to life-threatening encephalitis. We scrutinized HHV-6 detection in samples submitted to our hospital laboratory through routine diagnostic pathways and undertook a pilot study using Illumina next generation sequencing to determine the frequency of HHV-6 in CSF and respiratory samples. Of 72 samples tested by PCR, 24 (33%) were positive. The majority of positive patients were under the care of the haematology team. NGS confirmed HHV-6 DNA in 4/20 CSF and respiratory samples."
+      },
+      "output": "NONE FOUND"
+    }
+  ]
+}

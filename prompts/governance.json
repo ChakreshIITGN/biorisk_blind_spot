@@ -1,0 +1,85 @@
+{
+  "instruction": "You are a biosecurity expert trained in information hazard assessment and technical disclosure risk.\n\nTASK:\nAssess the paper title and abstract for evidence of excessive technical disclosure across five defined indicator categories.\n\nGOVERNANCE CATEGORIES:\n{ordered_categories}\n\nEvidence may be direct or contextual — you must look for both.\n\nEVIDENCE TYPES:\n- Direct: the abstract explicitly reports a parameter, protocol, or result matching the category. Example: \"exact aerosol particle size and spore concentration stated for a Tier 1 select agent\", \"named mutation sites enabling transmissibility disclosed with transmission rates\".\n- Contextual: the experimental design or methodology implies a disclosure risk even if not explicitly stated. Example: serial passaging of a select agent implies optimised culture conditions even if parameters are omitted; NHP aerosol challenge implies weaponisation-relevant parameters may be present in the full paper.\n\nSCORING (0-5):\n  0 = no technical detail present\n  1 = negligible — agent or method class named only, no parameters or protocol specificity\n  2 = weak — parameter type or protocol class mentioned without specific values (e.g. \"temperature was optimised\")\n  3 = moderate — specific value or protocol present but requires additional specialist expertise to act on\n  4 = strong — actionable technical detail for a DURC-relevant pathogen; limited further expertise needed\n  5 = definitive — directly actionable detail for a Tier 1 select agent, PEPP pathogen, or Schedule 1 CWC agent\n\nSTRICT OUTPUT RULES:\n- id: return character-for-character exactly as received. Any alteration is an error.\n- Assess ALL five categories carefully and completely before deciding on output. A missed real finding is as serious as a false positive — do not skip categories prematurely.\n- Output ONLY the categories where you assign a score ≥ 1. Do not include categories with score 0 — the system fills those automatically.\n- If you find NO evidence across all five categories, output exactly the string: NONE FOUND\n- evidence: 1-2 lines only. State whether evidence is direct or contextual.\n- Do not fabricate or overstretch evidence. Only score a category if the title or abstract contains genuine direct or contextual support as defined above.\n- Output valid JSON only (or NONE FOUND). No text outside the JSON object or the NONE FOUND string.\n- Your output will be validated programmatically. Wrong types or unexpected fields cause rejection.\n- Use the exact lowercase label shown in [brackets] in the category list as the JSON key. Do not use any other identifier.\n\nOUTPUT SCHEMA — include ONLY the categories you scored (score ≥ 1):\n{\"id\": \"<string — exact input id, unchanged>\", \"<category label>\": {\"score\": <int 1-5>, \"evidence\": \"<string>\"}, ...}\nIf nothing found across all categories: NONE FOUND\n\nEXAMPLES:\n{examples}",
+
+  "categories": {
+    "G1": {
+      "name": "Quantitative Parameters",
+      "description": "Precise numerical values that define potency, lethality, infectivity, or optimal production conditions for a dangerous agent.",
+      "keywords": "IC50, EC50, LD50, LC50, MIC, concentration, yield, titre, temperature, pH, osmolarity, timing, passage count, spore count, dose"
+    },
+    "G2": {
+      "name": "Culture & Production Methods",
+      "description": "Detailed methodology for growing, concentrating, purifying, or preserving dangerous pathogens or toxins.",
+      "keywords": "culture medium, media formulation, growth conditions, purification, chromatography, precipitation, centrifugation, storage, cryoprotectant, scale-up, yield, harvest"
+    },
+    "G3": {
+      "name": "Weaponisation Relevant Details",
+      "description": "Technical parameters directly relevant to converting a dangerous agent into a deliverable or dispersible form.",
+      "keywords": "aerosolisation, particle size, MMAD, nebulisation, dispersal, environmental persistence, stabilisation, decontamination resistance, delivery system, spray angle"
+    },
+    "G4": {
+      "name": "Modification & Enhancement Details",
+      "description": "Genetic, biochemical, or procedural details enabling replication of capability-enhancing modifications to a dangerous agent.",
+      "keywords": "mutation, amino acid substitution, serial passaging, MOI, selective pressure, gain-of-function, CRISPR, directed evolution, resistance, transmissibility enhancement, virulence"
+    },
+    "G5": {
+      "name": "Synthesis & Acquisition Routes",
+      "description": "Routes to reconstruct, synthesise, or acquire dangerous agents or precursors outside regulated channels.",
+      "keywords": "synthesis route, genome sequence, reconstruction, precursor, circumvention, select agent, Schedule 1, CWC agent, acquisition method, de novo synthesis"
+    }
+  },
+
+  "examples": [
+    {
+      "label": "positive — Tier 1 select agent with enhancement and aerosolisation parameters (sparse output: G5 omitted as score 0)",
+      "input": {
+        "id": "107",
+        "title": "Ciprofloxacin-resistant Bacillus anthracis generated by serial passaging retains lethality in macaque aerosol challenge",
+        "abstract": "We performed serial passaging of Bacillus anthracis Ames strain under sub-lethal ciprofloxacin pressure (32 passages, 0.5x MIC increments) to generate a ciprofloxacin-resistant variant. The MIC increased 512-fold. Aerosol challenge in macaques (MMAD 1-3 microns, 10^6 spores per cubic metre) confirmed retained lethality."
+      },
+      "output": {
+        "id": "107",
+        "quantitative parameters": {"score": 5, "evidence": "Direct: resistance endpoint (512-fold MIC increase) and aerosol challenge concentration (10^6 spores/m3) for a Tier 1 select agent are explicitly reported."},
+        "culture & production methods": {"score": 2, "evidence": "Contextual: 32-passage serial passaging under antibiotic selection implies optimised growth protocol; no media formulation or purification detail given."},
+        "weaponisation relevant details": {"score": 5, "evidence": "Direct: aerosol challenge parameters (MMAD 1–3 µm, 10^6 spores/m3) in a macaque model for Bacillus anthracis are explicitly stated."},
+        "modification & enhancement details": {"score": 5, "evidence": "Direct: serial passaging protocol (32 passages at 0.5× MIC increments) and resistance outcome (512-fold MIC increase) for a Tier 1 select agent are fully described."}
+      }
+    },
+    {
+      "label": "negative — no actionable technical disclosure",
+      "input": {
+        "id": "203",
+        "title": "Intranasal versus aerosol delivery of SARS-CoV-2 in Syrian hamsters",
+        "abstract": "We compared intranasal and aerosol routes of SARS-CoV-2 (ancestral strain) infection in golden Syrian hamsters under BSL-3 conditions. Aerosol exposure resulted in higher lung viral loads than intranasal delivery. No gain-of-function modifications were made."
+      },
+      "output": "NONE FOUND"
+    },
+    {
+      "label": "positive — gain-of-function influenza with named mutations and transmission rates (sparse output: G2 and G5 omitted as score 0)",
+      "input": {
+        "id": "88",
+        "title": "Combinatorial PB2 and HA substitutions confer airborne transmissibility to H5N1 influenza in ferrets",
+        "abstract": "Three substitutions in the PB2 polymerase (E627K, D701N, T271A) combined with HA-226L enabled airborne transmission of H5N1 between ferrets in 4/6 pairs. Virus was recovered from uninfected animals in 3/6 exposure pairs."
+      },
+      "output": {
+        "id": "88",
+        "quantitative parameters": {"score": 3, "evidence": "Direct: transmission rates (4/6 and 3/6 cage pairs) explicitly quantified, providing a benchmark for replication assessment."},
+        "weaponisation relevant details": {"score": 4, "evidence": "Direct: airborne transmission between ferrets confirmed with quantitative pair outcomes for an H5N1 strain carrying enhancement mutations."},
+        "modification & enhancement details": {"score": 5, "evidence": "Direct: specific mutation combination (PB2 E627K, D701N, T271A; HA-226L) enabling H5N1 airborne transmission is explicitly named — directly actionable for replication."}
+      }
+    },
+    {
+      "label": "positive — toxin production with culture and purification parameters (sparse output: G3, G4, G5 omitted as score 0)",
+      "input": {
+        "id": "312",
+        "title": "High-yield purification of botulinum neurotoxin type A from Clostridium botulinum cultures",
+        "abstract": "Clostridium botulinum type A was cultured in TPGY medium with 0.1% sodium thioglycolate at 37 degrees C and pH 6.2. Toxin was purified via DEAE-cellulose chromatography eluted at 0.3 M NaCl and concentrated by ammonium sulfate precipitation at 60% saturation. Peak yield was 2.4 million MLD per mL."
+      },
+      "output": {
+        "id": "312",
+        "quantitative parameters": {"score": 5, "evidence": "Direct: culture conditions (37°C, pH 6.2, 0.1% sodium thioglycolate) and peak yield (2.4 million MLD/mL) for BoNT/A are explicitly stated at actionable specificity."},
+        "culture & production methods": {"score": 5, "evidence": "Direct: medium (TPGY + 0.1% sodium thioglycolate), purification steps (DEAE-cellulose at 0.3 M NaCl, 60% ammonium sulfate precipitation) disclosed at ingredient-level specificity sufficient to guide production."}
+      }
+    }
+  ]
+}
