@@ -1,3 +1,4 @@
+# Licensed under CC BY-NC-ND 4.0 — https://creativecommons.org/licenses/by-nc-nd/4.0/
 """
 fetch_arxiv.py — fetch 500 random papers from arXiv non-biology categories.
 

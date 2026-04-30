@@ -1,3 +1,4 @@
+# Licensed under CC BY-NC-ND 4.0 — https://creativecommons.org/licenses/by-nc-nd/4.0/
 import re
 from rapidfuzz import fuzz
 from rapidfuzz.distance import JaroWinkler
